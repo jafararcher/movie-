@@ -8,18 +8,23 @@ scaler = joblib.load('scaler.pkl')
 
 st.title("🎬 Movie Rating Predictor")
 
-# Define genres (use the same ones from your training script)
-genres = ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Thriller']  # example list
+# Genres used in training
+genres = ['Comedy', 'Drama', 'Thriller', 'Romance', 'Action']
+genre_input = [1 if st.checkbox(g) else 0 for g in genres]
 
-# Collect input
-genre_input = [st.checkbox(genre) for genre in genres]
-avg_rating = st.slider("Average Movie Rating", 0.0, 5.0, 3.0)
-rating_count = st.number_input("Rating Count", min_value=0, value=100)
+# Additional features
+avg_rating = st.slider("Average Movie Rating", 0.0, 5.0, 3.0, 0.1)
+rating_count = st.number_input("Number of Ratings", min_value=0, step=1, value=100)
 
-# Feature vector
+# Final input vector (must match training order)
 features = np.array(genre_input + [avg_rating, rating_count]).reshape(1, -1)
-features_scaled = scaler.transform(features)
 
-if st.button("Predict"):
-    prediction = model.predict(features_scaled)[0]
-    st.success(f"Predicted Rating: ⭐ {round(prediction, 2)}")
+# Display shape to debug
+st.write(f"Feature vector shape: {features.shape}")  # should be (1, 7)
+
+# Make prediction
+features_scaled = scaler.transform(features)
+prediction = model.predict(features_scaled)[0]
+
+# Show result
+st.success(f"📊 Predicted Movie Rating: ⭐ {round(prediction, 2)}")
